@@ -1,0 +1,29 @@
+#chat-box {
+    display: flex;
+    flex-flow: column;
+    justify-content: space-between;
+    height: 100vh;
+}
+
+.centerup {
+    flex-grow: 1;
+    /*display: flex;*/
+    flex-flow: column;
+    justify-content: center;
+    max-height: 80vh;
+    overflow-y: scroll;
+}
+
+.inline-label {
+    /*display: flex;
+    flex-flow: row;*/
+
+}
+
+.messege {
+    font-size: 4rem;
+    max-width: 100vw;
+    overflow: hidden;
+    overflow-y: scroll;
+    overflow-wrap: break-word;
+}

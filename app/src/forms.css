@@ -1,0 +1,27 @@
+
+
+.input-box{
+    /*margin-bottom: 25px;*/
+    /*padding-right: 15px;*/
+}
+.input-box .input-label{
+    /*margin-bottom: 10px;*/
+}
+.input-label{
+
+}
+.input-input{
+    font-size: 4em;
+}
+.form-actions{
+
+}
+
+.inline-form {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 50px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
