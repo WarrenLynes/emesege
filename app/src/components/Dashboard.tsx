@@ -1,17 +1,42 @@
 import '../forms.css';
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import ChatRoom from "./ChatRoom";
 import SocketProvider from "../socketProvider";
 import {authProvider} from "../auth";
+import {fetchChats} from "../util";
+
+
+function ChatsList({chats, onSelectChat}) {
+    return (
+        chats.map((x) => (
+            <button key={x._id} onClick={() => onSelectChat(x._id)}> {x.name} </button>
+        ))
+    )
+}
 
 
 function DashboardComponent() {
-    const [chatId, setChatId] = useState('66671301d6698b9d4fe1850a');
+    const [chats, setChats] = useState(null);
+    const [chatId, setChatId] = useState(null);
+
+    useEffect(() => {
+        fetchChats()
+            .then((chats) => {
+                setChats(chats);
+            })
+    }, [])
+
+    console.log(chats, chatId);
 
     return (
         <>
             <SocketProvider token={authProvider.token}>
-                <ChatRoom chatId={chatId}/>
+                { chatId
+                    ? <ChatRoom chatId={chatId}/>
+                    : chats && chats.length
+                        ? <ChatsList chats={chats} onSelectChat={(x) => setChatId(x)} />
+                        : <h2>no chats</h2>
+                }
             </SocketProvider>
         </>
     )

@@ -13,24 +13,6 @@ function ChatRoomComponent ({chatId}) {
     const [chat, setChat] = useState(null);
     const [typing, setTyping] = useState(null);
 
-
-    /*useEffect(() => {
-        if(!authProvider.token || !!socket)
-            return;
-
-        const _socket = io(
-            `http://${window.location.hostname}:1989`,
-            {auth:{token: authProvider.token}}
-        );
-
-        setSocket(_socket);
-
-        return () => {
-            _socket.disconnect();
-        }
-
-    }, [authProvider.isAuthenticated]);*/
-
     useEffect(() => {
         if(!socket)
             return;
@@ -51,15 +33,18 @@ function ChatRoomComponent ({chatId}) {
         socket.on('UPDATE_TYPING', onUpdateTyping);
         socket.on('USER_JOINED', onUserJoined)
 
-        socket.emit('JOIN_CHAT', chatId);
+        socket.emit('JOIN_CHAT', String(chatId));
 
-        return () => {
-            socket.off('UPDATE_CHAT', onUpdate);
-            socket.off('UPDATE_TYPING', onUpdateTyping);
-            socket.disconnect();
-        }
+        // return () => {
+        //     socket.off('UPDATE_CHAT', onUpdate);
+        //     socket.off('UPDATE_TYPING', onUpdateTyping);
+        //     socket.disconnect();
+        // }
     }, [socket]);
 
+
+    console.log(chat);
+    console.log(chatId)
 
     async function handlePostMessage(messageInfo: string) {
         await handleTyping(false);
