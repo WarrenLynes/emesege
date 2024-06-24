@@ -1,10 +1,13 @@
 import '../forms.css';
-import {redirect, useActionData, useLocation, useNavigate, useNavigation, useSubmit} from "react-router-dom";
+import {useActionData, useLocation, useNavigate} from "react-router-dom";
+import {userAuthenticated} from "../state/authSlice";
+import {useDispatch} from "react-redux";
 import axios from "axios";
-import {authProvider} from "../auth";
 
+import {login} from '../util';
 
 function LoginComponent({onLogin}) {
+    const dispatch = useDispatch();
     const location = useLocation();
     const params = new URLSearchParams(location.search);
     const from = params.get("from") || "/";
@@ -23,9 +26,9 @@ function LoginComponent({onLogin}) {
             let username = form.get("username") as string | null;
             let password = form.get("password") as string | null;
 
-            await authProvider.signin({username, password})
+            const res = await login({username, password})
 
-            console.log(authProvider);
+            dispatch(userAuthenticated(res));
 
             return navigation("/");
 
@@ -48,6 +51,7 @@ function LoginComponent({onLogin}) {
                             name="username"
                             className="input-input"
                             placeholder="username"
+                            value="emily"
                         />
                         <input
                             type="password"
@@ -55,6 +59,7 @@ function LoginComponent({onLogin}) {
                             name="password"
                             className="input-input"
                             placeholder="password"
+                            value="12345"
                         />
                     </div>
 

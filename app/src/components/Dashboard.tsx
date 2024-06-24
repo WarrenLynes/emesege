@@ -1,43 +1,51 @@
 import '../forms.css';
-import {useEffect, useState} from "react";
+import {Outlet, useNavigate, useNavigation} from 'react-router-dom';
+import {useContext, useEffect, useState} from "react";
 import ChatRoom from "./ChatRoom";
-import SocketProvider from "../socketProvider";
+import SocketProvider, {SocketContext} from "../socketProvider";
 import {authProvider} from "../auth";
-import {fetchChats} from "../util";
+import {useDispatch, useSelector} from "react-redux";
+import {fetchChatsThunk, handleFetchChats} from "../state/chatsSlice";
 
 
 function ChatsList({chats, onSelectChat}) {
     return (
-        chats.map((x) => (
-            <button key={x._id} onClick={() => onSelectChat(x._id)}> {x.name} </button>
-        ))
+        Object.keys(chats)
+            .map((x) => (
+                <button key={chats[x]._id} onClick={() => onSelectChat(chats[x]._id)}> {chats[x].name} </button>
+            ))
     )
 }
 
 
 function DashboardComponent() {
-    const [chats, setChats] = useState(null);
+    const navigation = useNavigate();
+    const dispatch = useDispatch();
+    const socket = useContext(SocketContext);
+    const chats = useSelector((state) => state.chats);
+    const auth = useSelector((state) => state.auth);
     const [chatId, setChatId] = useState(null);
 
     useEffect(() => {
-        fetchChats()
-            .then((chats) => {
-                setChats(chats);
-            })
+        dispatch(fetchChatsThunk());
     }, [])
 
-    console.log(chats, chatId);
+    function selectChat(x) {
+        // socket.emit('JOIN_CHAT', x);
+        setChatId(x)
+    }
 
+    console.log(chats)
+
+    const entities = chats.entities;
     return (
         <>
-            <SocketProvider token={authProvider.token}>
-                { chatId
-                    ? <ChatRoom chatId={chatId}/>
-                    : chats && chats.length
-                        ? <ChatsList chats={chats} onSelectChat={(x) => setChatId(x)} />
-                        : <h2>no chats</h2>
-                }
-            </SocketProvider>
+            { chatId
+                ? <ChatRoom chatId={chatId} user={auth.user} />
+                : entities && Object.keys(entities).length
+                    ? <ChatsList chats={entities} onSelectChat={(x) => selectChat(x)} />
+                    : <h2>no chats</h2>
+            }
         </>
     )
 }

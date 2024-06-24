@@ -1,19 +1,38 @@
 import axios from "axios";
-import {authProvider} from "./auth";
 
-export async function fetchChats() {
-
+export async function fetchChats(token) {
     try{
         const {data} = await axios.get('/chats', {
             baseURL: "/api",
             headers: {
                 'Content-Type' : 'application/json',
-                'Authentication': authProvider.token
+                'Authentication': token
             }
         });
-        console.log(data);
         return data;
     } catch (e) {
 
+    }
+}
+
+
+export async function login(userInfo: {username: string, password:string}) {
+    try{
+        const user = await axios.post('/login', userInfo, {
+            baseURL: "/api",
+            headers: {
+                'Content-Type' : 'application/json'
+            }
+        });
+
+        return {
+            user: {
+                username: user.data.user.username,
+                _id: user.data.user._id
+            },
+            token: user.data.token
+        }
+    } catch (e) {
+        console.error(e)
     }
 }

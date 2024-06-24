@@ -1,56 +1,29 @@
 import '../chat.css';
 import '../forms.css';
+import {useContext, useEffect} from "react";
+import {useSelector} from "react-redux";
 import ChatControlsComponent from "./ChatControls";
-import {authProvider} from "../auth";
-import {useContext, useEffect, useState} from "react";
-import {socketSetup} from '../socketProvider';
-import {io} from "socket.io-client";
-
 import { SocketContext } from "../socketProvider";
 
-function ChatRoomComponent ({chatId}) {
+function ChatRoomComponent ({chatId, user}) {
     const socket = useContext(SocketContext);
-    const [chat, setChat] = useState(null);
-    const [typing, setTyping] = useState(null);
+    //fetch from store
+    const chat = useSelector((st) => st.chats.entities[chatId]);
+    // const typing = useSelector(st => st.chats.typing);
 
     useEffect(() => {
-        if(!socket)
+        if(!chatId || !socket)
             return;
 
-        function onUpdate(update) {
-            setChat(update);
-        }
+        socket.emit('JOIN_CHAT', chatId);
 
-        function onUpdateTyping(update) {
-            setTyping(update);
-        }
-
-        function onUserJoined(username) {
-            console.log('USER JOINED CHAT : ' + username);
-        }
-
-        socket.on('UPDATE_CHAT', onUpdate);
-        socket.on('UPDATE_TYPING', onUpdateTyping);
-        socket.on('USER_JOINED', onUserJoined)
-
-        socket.emit('JOIN_CHAT', String(chatId));
-
-        // return () => {
-        //     socket.off('UPDATE_CHAT', onUpdate);
-        //     socket.off('UPDATE_TYPING', onUpdateTyping);
-        //     socket.disconnect();
-        // }
-    }, [socket]);
-
-
-    console.log(chat);
-    console.log(chatId)
+    }, [ chatId ]);
 
     async function handlePostMessage(messageInfo: string) {
         await handleTyping(false);
         try{
             socket.emit('POST_CHAT', {
-                chat: chatId, user: authProvider.user, message: messageInfo
+                chat: chatId, user: user, message: messageInfo
             });
         } catch(e) {
             console.error('ERROR', e);
@@ -58,8 +31,11 @@ function ChatRoomComponent ({chatId}) {
     }
 
     async function handleTyping(bool) {
-        socket.emit('USER_TYPING', {user: authProvider.user.username, bool});
+        //Move to thunk
+        socket.emit('USER_TYPING', {chatId, user: user.username, bool});
     }
+
+    console.log(chat)
 
     return chat && chat.chats && chat.chats.length && (
         <>
@@ -71,12 +47,12 @@ function ChatRoomComponent ({chatId}) {
                         <p className="messege" >{chat.chats[chat.chats.length - 1].message}</p>
                     </div>
 
-                    {typing && !!typing.length && typing.map((x) => (<h6>{x} is typing...</h6>))}
+                    {chat.typing && !!chat.typing.length && chat.typing.map((x) => (<h6>{x} is typing...</h6>))}
 
                     <ChatControlsComponent
                         onTyping={handleTyping}
                         onPost={handlePostMessage}
-                        user={authProvider.user}
+                        user={user}
                     />
                 </div>
             </div>

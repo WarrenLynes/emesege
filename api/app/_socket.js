@@ -8,11 +8,11 @@ import {postMessage} from "./controllers/chat";
 
 
 export async function _connect(io) {
-  const typing = new Set();
+  const typing = {};
   const sockets = new Set();
   const users = new Set();
 
-  const chats = new Set(await Chat.find());
+  const chats = new Set();
 
 
 
@@ -65,8 +65,8 @@ export async function _connect(io) {
         }
       },
       {
-        id: 'USER_TYPING', cb: ({user, bool}) => {
-          return handleTyping(user, bool);
+        id: 'USER_TYPING', cb: ({chatId, user, bool}) => {
+          return handleTyping(chatId, user, bool);
         }
       }
     ];
@@ -101,7 +101,7 @@ export async function _connect(io) {
 
       io.sockets.in(chatId).emit('USER_JOINED', socket.id);
 
-      console.log(...sockets);
+      console.log(`JOIN CHAT : ${chatId}`);
 
       return updateChat(chatId);
     }
@@ -137,20 +137,28 @@ export async function _connect(io) {
         )
       );
 
-      io.sockets.emit('UPDATE_CHAT', chat);
+      console.log('UPDATE_CHAT ' + chat._id)
+
+      io.sockets.in(chatId).emit('UPDATE_CHAT', chat);
     }
 
-    function handleTyping(user, bool) {
+    function handleTyping(chatId, user, bool) {
+      let _typing = typing[chatId];
 
-      if(!bool){
-        typing.delete(user);
-      } else if(!typing.has(user)) {
-        typing.add(user);
+      if(!_typing) {
+        _typing = new Set();
+        typing[chatId] = _typing;
       }
 
-      console.log('USER TYPING : ', [...typing]);
+      if(!bool){
+        _typing.delete(user);
+      } else if(!_typing.has(user)) {
+        _typing.add(user);
+      }
 
-      io.sockets.emit('UPDATE_TYPING', [...typing]);
+      console.log('USER TYPING : ', [..._typing]);
+
+      io.sockets.in(chatId).emit('UPDATE_TYPING', {chatId, typing: [..._typing]});
     }
 
     async  function authenticateRequest(_socket, next) {
