@@ -5,6 +5,7 @@ import {useDispatch} from "react-redux";
 import axios from "axios";
 
 import {login} from '../util';
+import {useState} from "react";
 
 function LoginComponent({onLogin}) {
     const dispatch = useDispatch();
@@ -31,8 +32,6 @@ function LoginComponent({onLogin}) {
             dispatch(userAuthenticated(res));
 
             return navigation("/");
-
-            // setUser({...user.data.user, token: user.data.token});
         } catch (e) {
             console.error(e)
         }
@@ -51,7 +50,7 @@ function LoginComponent({onLogin}) {
                             name="username"
                             className="input-input"
                             placeholder="username"
-                            value="emily"
+                            defaultValue="emily"
                         />
                         <input
                             type="password"
@@ -59,7 +58,7 @@ function LoginComponent({onLogin}) {
                             name="password"
                             className="input-input"
                             placeholder="password"
-                            value="12345"
+                            defaultValue="12345"
                         />
                     </div>
 

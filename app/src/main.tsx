@@ -6,6 +6,7 @@ import App from './_APP.tsx'
 import './index.css'
 import store from "./state/store";
 import SocketProvider from "./socketProvider";
+import Canvas from "./components/Canvas";
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

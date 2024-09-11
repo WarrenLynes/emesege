@@ -1,15 +1,19 @@
 import '../chat.css';
 import '../forms.css';
-import {useContext, useEffect} from "react";
+import {useContext, useEffect, useState} from "react";
 import {useSelector} from "react-redux";
 import ChatControlsComponent from "./ChatControls";
 import { SocketContext } from "../socketProvider";
+import Canvas from "./Canvas";
+
+
 
 function ChatRoomComponent ({chatId, user}) {
     const socket = useContext(SocketContext);
     //fetch from store
-    const chat = useSelector((st) => st.chats.entities[chatId]);
+    const chat = useSelector((st) => st.chats.entity);
     // const typing = useSelector(st => st.chats.typing);
+    const [renderStatus, setRenderStatus] = useState('html');
 
     useEffect(() => {
         if(!chatId || !socket)
@@ -35,27 +39,32 @@ function ChatRoomComponent ({chatId, user}) {
         socket.emit('USER_TYPING', {chatId, user: user.username, bool});
     }
 
-    console.log(chat)
-
-    return chat && chat.chats && chat.chats.length && (
+    return (
         <>
-            <div id="chat-box">
+            <Canvas
+                id="chatCanvas"
+                chat={chat ? chat : null}
+                status={{drawChats: renderStatus === 'canvas'}}
+            />
+
+            {chat && chat.chats && chat.chats.length && renderStatus === 'html' && <div id="chat-box">
+              <>
                 <div className="centerup">
                     <div className="inline-label">
                         <h2 style={{'textAlign': 'start'}}>{chat.chats[chat.chats.length - 1].user.username}</h2>
 
-                        <p className="messege" >{chat.chats[chat.chats.length - 1].message}</p>
+                        <p className="messege">{chat.chats[chat.chats.length - 1].message}</p>
                     </div>
 
                     {chat.typing && !!chat.typing.length && chat.typing.map((x) => (<h6>{x} is typing...</h6>))}
-
-                    <ChatControlsComponent
-                        onTyping={handleTyping}
-                        onPost={handlePostMessage}
-                        user={user}
-                    />
                 </div>
-            </div>
+                <ChatControlsComponent
+                  onTyping={handleTyping}
+                  onPost={handlePostMessage}
+                  user={user}
+                />
+              </>
+            </div>}
         </>
     )
 }

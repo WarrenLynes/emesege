@@ -41,6 +41,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-promise-router": "^4.1.1",
+    "generate-unique-id": "^2.0.3",
     "i": "^0.3.7",
     "jest": "^29.7.0",
     "jsonwebtoken": "^9.0.2",

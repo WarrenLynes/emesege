@@ -1,9 +1,40 @@
+import jwt from "jsonwebtoken";
+import generateUniqueId from "generate-unique-id";
 import * as authService from './services/auth.js';
 import User from './models/user';
-import {Chat} from './models/chat';
-import jwt from "jsonwebtoken";
+import {Chat as ChatModel} from './models/chat';
 import {postMessage} from "./controllers/chat";
 
+
+class ChatClass {
+
+  constructor(doc) {
+    this.doc = doc;
+    this.users = new Set();
+    this.currentChat = new Set();
+
+  }
+
+  addUser = (user) => {
+    this.users.add(user)
+
+    console.log('USER ADDED: ', user._id)
+  }
+
+  inputMessage = (userId, message) => {
+    if(!message.id) {
+      this.currentChat.add({
+        ...message,
+        _id: generateUniqueId({
+          length: 32,
+          useLetters: false,
+        })
+      });
+    }
+
+    console.log(`NEW MESSAGE: ${userId} : ${message.message}`)
+  }
+}
 
 
 
@@ -11,11 +42,7 @@ export async function _connect(io) {
   const typing = {};
   const sockets = new Set();
   const users = new Set();
-
   const chats = new Set();
-
-
-
 
   io.on('connection', async (socket, next) => {
     const token = socket.handshake.auth.token;
@@ -123,8 +150,8 @@ export async function _connect(io) {
       }
     }
 
-    async function updateChat(chatId) {
-      const chat = await Chat.findById(chatId)
+    async function getChat(chatId) {
+      const chat = await ChatModel.findById(chatId)
         .populate('chats')
         .exec();
 
@@ -136,14 +163,24 @@ export async function _connect(io) {
             })
         )
       );
+      return chat;
+    }
+
+    async function updateChat(chatId) {
+      const chat = await getChat(chatId);
 
       console.log('UPDATE_CHAT ' + chat._id)
 
       io.sockets.in(chatId).emit('UPDATE_CHAT', chat);
     }
 
-    function handleTyping(chatId, user, bool) {
+    async function handleTyping(chatId, user, bool) {
+      const chat = await ChatModel.findById(chatId)
+        .populate('chats')
+        .exec();
       let _typing = typing[chatId];
+
+
 
       if(!_typing) {
         _typing = new Set();

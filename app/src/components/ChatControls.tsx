@@ -5,6 +5,8 @@ function ChatControlsComponent({user, onPost, onTyping}) {
     const [input, setInput] = useState('');
     const [typing, setTyping] = useState(0);
 
+    const maxMessageLength = 500;
+
 
     useEffect(() => {
         return () => {
@@ -23,6 +25,9 @@ function ChatControlsComponent({user, onPost, onTyping}) {
     }
 
     function updateInput(x) {
+        if(input.length >= 500 && x.length >= input.length)
+            return;
+
         setInput(x.target.value)
 
         clearTimeout(typing);
@@ -38,6 +43,7 @@ function ChatControlsComponent({user, onPost, onTyping}) {
         <>
             <form id="chat-controls-box" className="inline-form" onSubmit={handleSubmit}>
                 <div className="input-box">
+                    <span>{maxMessageLength - input.length} chars left</span>
                     <input
                         onChange={updateInput}
                         value={input}
@@ -46,6 +52,7 @@ function ChatControlsComponent({user, onPost, onTyping}) {
                         name="message"
                         className="input-input"
                         placeholder="message"
+                        maxLength={maxMessageLength}
                     />
                 </div>
 

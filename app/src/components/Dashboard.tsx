@@ -1,11 +1,10 @@
 import '../forms.css';
-import {Outlet, useNavigate, useNavigation} from 'react-router-dom';
+import { useNavigate, } from 'react-router-dom';
 import {useContext, useEffect, useState} from "react";
 import ChatRoom from "./ChatRoom";
-import SocketProvider, {SocketContext} from "../socketProvider";
-import {authProvider} from "../auth";
+import {SocketContext} from "../socketProvider";
 import {useDispatch, useSelector} from "react-redux";
-import {fetchChatsThunk, handleFetchChats} from "../state/chatsSlice";
+import {fetchChatsThunk, selectChat as selectChatAction} from "../state/chatsSlice";
 
 
 function ChatsList({chats, onSelectChat}) {
@@ -32,6 +31,7 @@ function DashboardComponent() {
 
     function selectChat(x) {
         // socket.emit('JOIN_CHAT', x);
+        dispatch(selectChatAction(x));
         setChatId(x)
     }
 

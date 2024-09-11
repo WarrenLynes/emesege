@@ -9,6 +9,7 @@ import ChatRoomComponent from "./components/ChatRoom";
 import Chats from "./components/Chats";
 import ChatRoom from "./components/ChatRoom";
 import SocketProvider from "./socketProvider";
+import Canvas from "./components/Canvas";
 
 type userLoginInfo = {username: string};
 
@@ -61,12 +62,11 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-
-    // const auth = useSelector((state) => state.auth);
-    // const dispatch = useDispatch();
-
+    const chat = useSelector(state => state.chats.entity);
     return (
-        <RouterProvider router={router} />
+        <>
+            <RouterProvider router={router} />
+        </>
     )
 
 }

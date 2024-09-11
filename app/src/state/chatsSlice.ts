@@ -3,12 +3,14 @@ import {fetchChats} from "../util";
 
 interface initialState {
     entities: object;
+    entity: object | null;
     status: null | string;
     typing: null | object;
 }
 
 const initialState : initialState = {
     entities: {},
+    entity: null,
     status: null,
     typing: null
 }
@@ -29,15 +31,18 @@ const chatsSlice = createSlice({
     name: 'chats',
     initialState,
     reducers: {
+        selectChat(state, action) {
+            state.entity = state.entities[action.payload];
+        },
         updateChat(state, action) {
             if(!state.entities[action.payload._id]){
                 throw Error('NO CHAT')
             }
 
             state.entities[action.payload._id] = action.payload
+            state.entity = action.payload
         },
         updateTyping(state, action) {
-            // state.entities[action.payload.chatId].typing = action.payload.typing;
             state.entities = {
                 ...state.entities,
                 [action.payload.chatId]: {
@@ -62,5 +67,5 @@ const chatsSlice = createSlice({
     }
 })
 
-export const {updateChat, updateTyping} = chatsSlice.actions;
+export const {selectChat, updateChat, updateTyping} = chatsSlice.actions;
 export default chatsSlice.reducer;
